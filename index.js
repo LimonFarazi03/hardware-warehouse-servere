@@ -41,9 +41,14 @@ async function run() {
     });
 
     app.post("/review", async (req, res) => {
-      const query = req.body;
-      const result = await reviewCollection.insertOne(query);
-      res.send(result);
+      const review = req.body;
+      const query = {email: review.email}
+      const exists = await reviewCollection.findOne(query)
+      if(exists){
+        return res.send({success: false, review:exists})
+      };
+      const result = await reviewCollection.insertOne(review);
+      return res.send({success:true, result});
     });
 
     app.get("/review", async (req, res) => {
