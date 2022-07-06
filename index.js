@@ -19,6 +19,39 @@ async function run() {
     const serviceCollection = client.db("assignment12").collection("services");
     const bookingCollection = client.db("assignment12").collection("booking");
     const reviewCollection = client.db("assignment12").collection("review");
+    const userCollection = client.db("assignment12").collection("users");
+
+    app.get('/users', async(req,res)=>{
+      const query = req.body;
+      const cursor = userCollection.find(query);
+      const result = await cursor.toArray(cursor);
+      res.send(result);
+    });
+
+    app.post('/users', async(req,res)=>{
+      const query = req.body;
+      const result = await userCollection.insertOne(query);
+      res.send(result);
+    });
+
+    app.put("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      console.log("form updating api", data);
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...data,
+        },
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send({success:true ,result});
+    });
 
     app.get('/services', async(req,res)=>{
       const query = req.body;
@@ -37,6 +70,13 @@ async function run() {
     app.post("/booking", async (req, res) => {
       const query = req.body;
       const result = await bookingCollection.insertOne(query);
+      res.send(result);
+    });
+
+    app.delete("/booking/:id", async (req, res) => {
+      const query = req.params.id;
+      const filter = {_id: ObjectId(query)}
+      const result = await bookingCollection.deleteOne(filter);
       res.send(result);
     });
 
